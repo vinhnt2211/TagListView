@@ -121,12 +121,6 @@ open class TagListView: UIView {
             rearrangeViews()
         }
     }
-
-    @IBInspectable open dynamic var minWidth: CGFloat = 0 {
-        didSet {
-            rearrangeViews()
-        }
-    }
     
     @objc public enum Alignment: Int {
         case left
@@ -264,6 +258,7 @@ open class TagListView: UIView {
         var currentRowView: UIView!
         var currentRowTagCount = 0
         var currentRowWidth: CGFloat = 0
+        var currentOriginY: CGFloat = 0
         let frameWidth = frame.width
         
         let directionTransform = isRtl
@@ -280,12 +275,13 @@ open class TagListView: UIView {
                 currentRowTagCount = 0
                 currentRowView = UIView()
                 currentRowView.transform = directionTransform
-                currentRowView.frame.origin.y = CGFloat(currentRow - 1) * (tagViewHeight + marginY)
+                currentRowView.frame.origin.y = currentOriginY
                 
                 rowViews.append(currentRowView)
                 addSubview(currentRowView)
 
                 tagView.frame.size.width = min(tagView.frame.size.width, frameWidth)
+                currentOriginY += tagViewHeight + marginY
             }
             
             let tagBackgroundView = tagBackgroundViews[index]
@@ -294,7 +290,6 @@ open class TagListView: UIView {
                 x: currentRowWidth,
                 y: 0)
             tagBackgroundView.frame.size = tagView.bounds.size
-            tagView.frame.size.width = max(minWidth, tagView.frame.size.width)
             tagBackgroundView.layer.shadowColor = shadowColor.cgColor
             tagBackgroundView.layer.shadowPath = UIBezierPath(roundedRect: tagBackgroundView.bounds, cornerRadius: cornerRadius).cgPath
             tagBackgroundView.layer.shadowOffset = shadowOffset
@@ -327,16 +322,21 @@ open class TagListView: UIView {
     // MARK: - Manage tags
     
     override open var intrinsicContentSize: CGSize {
-        var height = CGFloat(rows) * (tagViewHeight + marginY)
+//        var height = CGFloat(rows) * (tagViewHeight + marginY)
+        var height: CGFloat = 0
+        tagViews.forEach { tagView in
+            height += tagView.frame.height + marginY
+        }
+        print(height)
         if rows > 0 {
             height -= marginY
         }
+        print(height)
         return CGSize(width: frame.width, height: height)
     }
     
     private func createNewTagView(_ title: String) -> TagView {
         let tagView = TagView(title: title)
-        
         tagView.textColor = textColor
         tagView.selectedTextColor = selectedTextColor
         tagView.tagBackgroundColor = tagBackgroundColor
@@ -363,7 +363,6 @@ open class TagListView: UIView {
                 $0.isSelected = $0 == this
             }
         }
-        
         return tagView
     }
 
