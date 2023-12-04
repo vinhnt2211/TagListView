@@ -322,16 +322,13 @@ open class TagListView: UIView {
     // MARK: - Manage tags
     
     override open var intrinsicContentSize: CGSize {
-//        var height = CGFloat(rows) * (tagViewHeight + marginY)
         var height: CGFloat = 0
         tagViews.forEach { tagView in
             height += tagView.frame.height + marginY
         }
-        print(height)
         if rows > 0 {
             height -= marginY
         }
-        print(height)
         return CGSize(width: frame.width, height: height)
     }
     
