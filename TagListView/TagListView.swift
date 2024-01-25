@@ -11,6 +11,7 @@ import UIKit
 @objc public protocol TagListViewDelegate {
     @objc optional func tagPressed(_ title: String, tagView: TagView, sender: TagListView) -> Void
     @objc optional func tagRemoveButtonPressed(_ title: String, tagView: TagView, sender: TagListView) -> Void
+    @objc optional func tagRemoveButtonPressed(index: Int, tagView: TagView, sender: TagListView) -> Void
 }
 
 @IBDesignable
@@ -266,6 +267,7 @@ open class TagListView: UIView {
             : CGAffineTransform.identity
         
         for (index, tagView) in tagViews.enumerated() {
+            tagView.tag = index
             tagView.frame.size = tagView.intrinsicContentSize
             tagViewHeight = tagView.frame.height
             
@@ -323,8 +325,8 @@ open class TagListView: UIView {
     
     override open var intrinsicContentSize: CGSize {
         var height: CGFloat = 0
-        tagViews.forEach { tagView in
-            height += tagView.frame.height + marginY
+        rowViews.forEach { rowView in
+            height += rowView.frame.height + marginY
         }
         if rows > 0 {
             height -= marginY
@@ -451,6 +453,7 @@ open class TagListView: UIView {
     @objc func removeButtonPressed(_ closeButton: CloseButton!) {
         if let tagView = closeButton.tagView {
             delegate?.tagRemoveButtonPressed?(tagView.currentTitle ?? "", tagView: tagView, sender: self)
+            delegate?.tagRemoveButtonPressed?(index: tagView.tag, tagView: tagView, sender: self)
         }
     }
 }
